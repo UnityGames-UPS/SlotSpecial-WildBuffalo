@@ -47,6 +47,8 @@ public class UIManager : MonoBehaviour
     [Header("Popus UI")]
     [SerializeField]
     private GameObject MainPopup_Object;
+    [SerializeField]
+    private GameObject WinMainPopup_Object;
 
     [Header("About Popup")]
     [SerializeField]
@@ -414,7 +416,7 @@ public class UIManager : MonoBehaviour
     {
         double initAmount = 0;
         if (WinPopup_Object) WinPopup_Object.SetActive(true);
-        if (MainPopup_Object) MainPopup_Object.SetActive(true);
+        if (WinMainPopup_Object) WinMainPopup_Object.SetActive(true);
         WinPopupTextTween = DOTween.To(() => initAmount, (val) => initAmount = val, amount, 5f).OnUpdate(() =>
         {
             if (Win_Text) Win_Text.text = initAmount.ToString("F3");
@@ -422,7 +424,7 @@ public class UIManager : MonoBehaviour
 
         ClosePopupTween = DOVirtual.DelayedCall(6f, () =>
         {
-            ClosePopup(WinPopup_Object);
+            CloseWinPopup(WinPopup_Object);
             slotManager.CheckPopups = false;
         });
     }
@@ -566,6 +568,30 @@ public class UIManager : MonoBehaviour
 
     private void OpenPopup(GameObject Popup)
     {
+        if (Popup == LBPopup_Object)
+        {
+            if (PaytablePopup_Object.activeSelf) PaytablePopup_Object.SetActive(false);
+            if (SettingsPopup_Object.activeSelf) SettingsPopup_Object.SetActive(false);
+        }
+        if (Popup == DisconnectPopup_Object)
+        {
+            if (PaytablePopup_Object.activeSelf) PaytablePopup_Object.SetActive(false);
+            if (SettingsPopup_Object.activeSelf) SettingsPopup_Object.SetActive(false);
+            if (FreeSpinPopup_Object.activeSelf) FreeSpinPopup_Object.SetActive(false);
+            if (LBPopup_Object.activeSelf) LBPopup_Object.SetActive(false);
+        }
+        if (Popup == ReconnectPopup_Object)
+        {
+            if (PaytablePopup_Object.activeSelf) PaytablePopup_Object.SetActive(false);
+            if (SettingsPopup_Object.activeSelf) SettingsPopup_Object.SetActive(false);
+            if (FreeSpinPopup_Object.activeSelf) FreeSpinPopup_Object.SetActive(false);
+            if (LBPopup_Object.activeSelf) LBPopup_Object.SetActive(false);
+        }
+        if (Popup == FreeSpinPopup_Object)
+        {
+            if (PaytablePopup_Object.activeSelf) PaytablePopup_Object.SetActive(false);
+            if (SettingsPopup_Object.activeSelf) SettingsPopup_Object.SetActive(false);
+        }
         if (audioController) audioController.PlayButtonAudio();
         if (Popup) Popup.SetActive(true);
         if (MainPopup_Object) MainPopup_Object.SetActive(true);
@@ -578,6 +604,16 @@ public class UIManager : MonoBehaviour
         if (!DisconnectPopup_Object.activeSelf)
         {
             if (MainPopup_Object) MainPopup_Object.SetActive(false);
+        }
+    }
+
+        private void CloseWinPopup(GameObject Popup)
+    {
+        if (audioController) audioController.PlayButtonAudio();
+        if (Popup) Popup.SetActive(false);
+        if (!DisconnectPopup_Object.activeSelf)
+        {
+            if (WinMainPopup_Object) WinMainPopup_Object.SetActive(false);
         }
     }
 

@@ -2,143 +2,132 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
-using System;
-using System.Collections;
 
 public class PaytableScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private RectTransform contentMain;
+    [SerializeField] private RectTransform content;
 
-    [SerializeField]
-    private ScrollRect scrollRect;
-    [SerializeField]
-    private RectTransform contentMain;
-    [SerializeField]
-    private RectTransform content;
-    [SerializeField]
-    private float snapSpeed = 10f; 
-    [SerializeField]
-    private float snapThreshold = 0.2f;
-    [SerializeField]
-    private float contentItemWidth = 2209f;
-    private float contentOffset = 0;
-    [SerializeField]
-    private float contentOffsetcaliberate = -346.4698f;
-    [SerializeField]
-    private float contentheightOffset = 253.15f;
-    [SerializeField]
+    [Header("Auto Detect")]
+    [SerializeField] private float contentItemWidth;  
+    
+    [Header("Drag Settings")]
+    [SerializeField] private float snapSpeed = 0.35f;
+    [SerializeField] private float swipeThreshold = 80f;
+    [SerializeField] private float speedThreshold = 0.25f;
+
+    [Header("Offsets")]
+    [SerializeField] private float contentHeightOffset = 0f;
+
+    [Header("Indicators")]
+    [SerializeField] private Image[] indicator;
+    [SerializeField] private Sprite indicatorOn;
+    [SerializeField] private Sprite indicatorOff;
+
     private RectTransform[] items;
-    [SerializeField]
-    private Image[] indicator;
-    [SerializeField]
-    private Sprite indicatorOn;
-    [SerializeField]
-    private Sprite indicatorOff;
-    [SerializeField]
-    private Vector2 targetPosition;
-    public int closestItemIndex;
-    public float dragduration;
-    [SerializeField]
-    float speedthreshold;
-    [SerializeField]
-    float swipeThreshold;
-    public Vector2 swipeDistance;
+    private Vector2 swipeDistance;
+    private float dragDuration;
+    private int closestItemIndex = 0;
+
 
     void Start()
     {
-       
         items = new RectTransform[content.childCount];
-        indicator[0].sprite = indicatorOn;
+
         for (int i = 0; i < content.childCount; i++)
         {
             items[i] = content.GetChild(i).GetComponent<RectTransform>();
         }
+
+        AutoCalculatePageWidth();
+
+        if (indicator.Length > 0)
+            indicator[0].sprite = indicatorOn;
     }
 
-    
+
+    void AutoCalculatePageWidth()
+    {
+        if (items.Length > 1)
+        {
+            float posA = items[0].anchoredPosition.x;
+            float posB = items[1].anchoredPosition.x;
+            contentItemWidth = Mathf.Abs(posB - posA);
+        }
+        else
+        {
+            contentItemWidth = items[0].rect.width;
+        }
+
+        Debug.Log("Auto Detected Page Width: " + contentItemWidth);
+    }
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        resetDrag();
         swipeDistance = eventData.position;
-        dragduration = Time.time;
-        
+        dragDuration = Time.time;
     }
 
-    void resetDrag()
-    {
-        contentOffset = contentOffsetcaliberate;
-    }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        dragduration = Mathf.Abs(dragduration - Time.time);
-        swipeDistance -= eventData.position;
+        dragDuration = Mathf.Abs(Time.time - dragDuration);
+        swipeDistance = eventData.position - swipeDistance;
         SnapToClosestItem();
     }
 
     private void SnapToClosestItem()
     {
-        Debug.Log("functioncalled");
-       
-        float closestDistance = Mathf.Infinity;
-        RectTransform closestItem = null;
         scrollRect.velocity = Vector2.zero;
-       
-        if (swipeDistance.magnitude > swipeThreshold && dragduration < speedthreshold)
-        {
-            
-            if (swipeDistance.x < 0)
-            {
-                Debug.Log("left"+swipeDistance.magnitude);
-                closestItemIndex--;
-                if (closestItemIndex < 0)
-                {
-                    closestItemIndex = 0;               
-                }
-                closestItem = items[closestItemIndex];
-            }
-            else
-            {
-                Debug.Log("right" +swipeDistance.magnitude);
+        RectTransform targetItem = null;
+
+        if (swipeDistance.magnitude > swipeThreshold && dragDuration < speedThreshold)
+        {  
+            if (swipeDistance.x < 0)   
                 closestItemIndex++;
-                if (closestItemIndex > items.Length - 1)
-                {
-                    closestItemIndex = items.Length - 1;           
-                }
-                closestItem = items[closestItemIndex];
-            }
+            else                         
+                closestItemIndex--;
+
+            closestItemIndex = Mathf.Clamp(closestItemIndex, 0, items.Length - 1);
+            targetItem = items[closestItemIndex];
         }
         else
         {
+            float closestDist = Mathf.Infinity;
+
             for (int i = 0; i < items.Length; i++)
             {
-                float distance = Vector2.Distance(contentMain.transform.position, items[i].transform.position);
-              
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestItem = items[i];
-                    closestItemIndex = i;
+                float dist = Mathf.Abs(items[i].position.x - contentMain.position.x);
 
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    targetItem = items[i];
+                    closestItemIndex = i;
                 }
             }
         }
 
-        Debug.Log(closestItem);
-        if (closestItem != null)
-        {
-            float offset = contentItemWidth * closestItemIndex;
-            contentOffset = offset - contentOffset;
-            contentOffset = -contentOffset;
-            targetPosition = new Vector2(contentOffset, contentheightOffset);
-           
-            for (int i = 0; i < indicator.Length; i++)
-            {
-                indicator[i].sprite = indicatorOff;
-            }
-            indicator[closestItemIndex].sprite = indicatorOn;
-            content.DOAnchorPos(targetPosition, snapSpeed);
-        }
+        if (targetItem == null)
+            return;
+
+        float targetX = -(contentItemWidth * closestItemIndex);
+        Vector2 finalPos = new Vector2(targetX, contentHeightOffset);
+
+        content.DOAnchorPos(finalPos, snapSpeed).SetEase(Ease.OutCubic);
+
+        UpdateIndicators();
     }
 
+    private void UpdateIndicators()
+    {
+        if (indicator.Length == 0) return;
+
+        for (int i = 0; i < indicator.Length; i++)
+            indicator[i].sprite = indicatorOff;
+
+        indicator[closestItemIndex].sprite = indicatorOn;
+    }
 }
