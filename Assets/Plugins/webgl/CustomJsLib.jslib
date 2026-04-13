@@ -55,9 +55,6 @@ mergeInto(LibraryManager.library, {
             }
           });
         }
-        if(window.parent.dispatchReactUnityEvent != null){
-          window.parent.dispatchReactUnityEvent(message);
-        }
       }
     },
 
