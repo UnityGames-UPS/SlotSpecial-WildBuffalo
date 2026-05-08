@@ -5,50 +5,79 @@ using UnityEngine.UI; // For DOTween
 
 public class ButtonAnimator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    private Transform buttonTransform; // Assign the Button's transform in the Inspector.
+    private Transform buttonTransform;
     private Button button;
-    private float OrignalScale;
-    private void OnValidate() {
-        if (buttonTransform == null)
-        {
-            buttonTransform = transform; // Default to this GameObject's transform.
-            OrignalScale=transform.localScale.x;
-            button = transform.GetComponent<Button>();
-        }
+    private RectTransform rectTransform;
+    private float originalScale;
+
+    private void Awake()
+    {
+        Initialize();
     }
 
-    private void Start() {
+    private void Start()
+    {
+        Initialize();
+    }
+
+    private void Initialize()
+    {
         if (buttonTransform == null)
-        {
-            buttonTransform = transform; // Default to this GameObject's transform.
-            OrignalScale=transform.localScale.x;
-            button = transform.GetComponent<Button>();
-        }   
+            buttonTransform = transform;
+        
+        if (button == null)
+            button = GetComponent<Button>();
+            
+        if (rectTransform == null)
+            rectTransform = GetComponent<RectTransform>();
+
+        if (originalScale == 0)
+            originalScale = buttonTransform.localScale.x;
     }
 
     // Called when the button is pressed.
     public void OnPointerDown(PointerEventData eventData)
     {
-        // Debug.Log("Pointer Down");
-        if(button.interactable)
-            PressedAnimation(buttonTransform);
+        if (button != null && button.interactable)
+        {
+            PressedAnimation();
+        }
     }
 
     // Called when the button is released.
     public void OnPointerUp(PointerEventData eventData)
     {
-        // Debug.Log("Pointer Up");
+        if (button != null && button.interactable)
+        {
+            // Check if the pointer is within the original bounds (ignoring the current shrunk scale)
+            Vector3 currentScale = buttonTransform.localScale;
+            buttonTransform.localScale = new Vector3(originalScale, originalScale, currentScale.z);
+            bool insideOriginal = RectTransformUtility.RectangleContainsScreenPoint(rectTransform, eventData.position, eventData.pressEventCamera);
+            
+            // Check if it's currently inside the shrunk bounds
+            buttonTransform.localScale = currentScale;
+            bool insideNow = RectTransformUtility.RectangleContainsScreenPoint(rectTransform, eventData.position, eventData.pressEventCamera);
+
+            // If it's inside the original area but NOT the shrunk area, force the click
+            // because the standard Button component will fail to fire its OnClick event.
+            if (insideOriginal && !insideNow)
+            {
+                button.onClick.Invoke();
+            }
+        }
         
-            OnClickedAnimation(buttonTransform);
+        OnClickedAnimation();
     }
 
-    void PressedAnimation(Transform transform)
+    void PressedAnimation()
     {
-        transform.DOScale(0.8f, 0.2f); // Scale down on press.
+        buttonTransform.DOKill();
+        buttonTransform.DOScale(originalScale * 0.8f, 0.2f); // Scale down on press.
     }
 
-    void OnClickedAnimation(Transform transform)
+    void OnClickedAnimation()
     {
-        transform.DOScale(OrignalScale, 0.2f); // Scale back to normal size after release.
+        buttonTransform.DOKill();
+        buttonTransform.DOScale(originalScale, 0.2f); // Scale back to normal size after release.
     }
 }
