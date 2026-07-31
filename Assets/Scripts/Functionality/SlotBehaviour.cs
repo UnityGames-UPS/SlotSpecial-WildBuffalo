@@ -143,7 +143,6 @@ public class SlotBehaviour : MonoBehaviour
     internal bool IsAutoSpin = false;
     internal bool IsFreeSpin = false;
     private bool IsSpinning = false;
-    private bool CheckSpinAudio = false;
     internal bool CheckPopups = false;
     internal bool IsHoldSpin = false;
     internal int BetCounter = 0;
@@ -487,7 +486,14 @@ public class SlotBehaviour : MonoBehaviour
 
     private void OnApplicationFocus(bool focus)
     {
-        audioController.CheckFocusFunction(focus, CheckSpinAudio);
+        audioController.SetMuteAll(!focus);
+    }
+
+    internal void UpdateBalanceDisplay(double newBalance)
+    {
+        currentbalance = newBalance;
+        if (balance_text) balance_text.text = newBalance.ToString("F3");
+        Comparebalance();
     }
 
 
@@ -636,8 +642,6 @@ public class SlotBehaviour : MonoBehaviour
             yield break;
         }
 
-
-        CheckSpinAudio = true;
 
         IsSpinning = true;
 
@@ -1030,7 +1034,6 @@ public class SlotBehaviour : MonoBehaviour
             if (audioController) audioController.StopWLAaudio();
         }
 
-        CheckSpinAudio = false;
         if (SocketManager.resultData.freeSpinCount > 0)
         {
             AutoSpinStop_Button.interactable = false;

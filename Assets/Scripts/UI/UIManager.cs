@@ -198,6 +198,21 @@ public class UIManager : MonoBehaviour
     internal int FreeSpins;
 
     [SerializeField] internal GameObject RaycastBlocker;
+
+    private void Awake()
+    {
+        if (socketManager != null && socketManager.JSManager != null)
+            socketManager.JSManager.RegisterVisibilityListener(gameObject.name);
+    }
+
+    public void OnFocusChanged(string value)
+    {
+        bool focused = value == "1";
+        Debug.Log("UNITY FOCUS CHANGED: " + value + " (focused: " + focused + ")");
+        audioController?.SetMuteAll(!focused);
+        socketManager?.HandleFocusChange(focused);
+    }
+
     private void Start()
     {
 
