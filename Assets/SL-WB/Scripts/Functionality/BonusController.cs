@@ -146,7 +146,7 @@ public class BonusController : MonoBehaviour
     //     }
     // }
 
-    internal void PopulateWheel(List<int> bonusdata)
+    private void PopulateWheel(List<int> bonusdata)
     {
         // 1. Fill in natural order first (0–5 Spins, 6–11 Multipliers)
         for (int i = 0; i < bonusdata.Count; i++)
@@ -190,7 +190,7 @@ public class BonusController : MonoBehaviour
             shuffledIndexMap[originalIndex] = newIndex;
         }
     }
-    internal void StartSpin(int stopIndexFromServer)
+    private void StartSpin(int stopIndexFromServer)
     {
         if (spinRoutine != null) StopCoroutine(spinRoutine);
 
@@ -353,7 +353,7 @@ public class BonusController : MonoBehaviour
         });
     }
 
-    internal void PlayWinLooseSound(bool isWin)
+    private void PlayWinLooseSound(bool isWin)
     {
         if (isWin) _audioManager.PlayBonusAudio("win");
         else _audioManager.PlayBonusAudio("lose");

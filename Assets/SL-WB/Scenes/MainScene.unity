@@ -7881,7 +7881,7 @@ MonoBehaviour:
   uiManager: {fileID: 377874625}
   TestSocketURI: https://devrealtime.dingdinghouse.com/
   JSManager: {fileID: 452756050}
-  testToken: 5e0951c67c0e4b7483af97a3120c18cb
+  testToken: 1226c252d3d443529c6196ad872933be
 --- !u!1 &502968745
 GameObject:
   m_ObjectHideFlags: 0

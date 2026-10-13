@@ -140,8 +140,8 @@ public class SlotBehaviour : MonoBehaviour
     private Coroutine FreeSpinRoutine = null;
     private Coroutine tweenroutine;
     private Tween balanceTween;
-    internal bool IsAutoSpin = false;
-    internal bool IsFreeSpin = false;
+    private bool IsAutoSpin = false;
+    private bool IsFreeSpin = false;
     private bool IsSpinning = false;
     internal bool CheckPopups = false;
     internal bool IsHoldSpin = false;
@@ -155,15 +155,15 @@ public class SlotBehaviour : MonoBehaviour
     private bool StopSpinToggle;
     private float SpinDelay = 0.2f;
     private bool IsTurboOn;
-    internal bool WasAutoSpinOn;
+    private bool WasAutoSpinOn;
     private float boostDuration = 2f;
     private bool boostDone;
     internal bool spinDone;
     private bool hasSkippedAnimation;
     private Coroutine BoxAnimRoutine = null;
-    public float delayTime = 0.3f;
+    [SerializeField] private float delayTime = 0.3f;
     internal bool isBonusGame = false;
-    internal bool CheckAnimation = false;
+    private bool CheckAnimation = false;
     internal enum bonusWheelType
     {
         none,
@@ -986,7 +986,7 @@ public class SlotBehaviour : MonoBehaviour
         }
     }
 
-    internal void CheckBonusGame()
+    private void CheckBonusGame()
     {
         if (wheelType != bonusWheelType.none)
         {

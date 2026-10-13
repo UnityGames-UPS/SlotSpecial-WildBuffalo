@@ -7,8 +7,8 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class editorRunOnly : MonoBehaviour
 {
-    public SlotBehaviour slotmanager;
-    public Image[] reelOne,reelTwo,reelThree,reelFour,reelFive;
+    [SerializeField] private SlotBehaviour slotmanager;
+    [SerializeField] private Image[] reelOne,reelTwo,reelThree,reelFour,reelFive;
     // Start is called before the first frame update
 
     void OnEnable()
@@ -18,7 +18,7 @@ public class editorRunOnly : MonoBehaviour
     }
    
 
-    internal void shuffleInitialMatrix()
+    private void shuffleInitialMatrix()
     {
         for (int i = 0; i < reelTwo.Length; i++)
         {

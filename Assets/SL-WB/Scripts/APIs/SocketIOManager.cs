@@ -17,7 +17,7 @@ using Best.HTTP.Shared;
 public class SocketIOManager : MonoBehaviour
 {
     [SerializeField]
-    internal SlotBehaviour slotManager;
+    private SlotBehaviour slotManager;
 
     [SerializeField]
     private UIManager uiManager;
@@ -45,9 +45,9 @@ public class SocketIOManager : MonoBehaviour
     protected string gameID = "SL-WB";
     //protected string gameID = "";
 
-    internal bool isLoaded = false;
+    private bool isLoaded = false;
 
-    internal bool SetInit = false;
+    private bool SetInit = false;
 
     private const int maxReconnectionAttempts = 6;
     private readonly TimeSpan reconnectionDelay = TimeSpan.FromSeconds(10);

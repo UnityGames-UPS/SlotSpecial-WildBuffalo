@@ -317,12 +317,12 @@ public class UIManager : MonoBehaviour
         OpenPopup(LBPopup_Object);
     }
 
-    internal void SkipAnimation()
+    private void SkipAnimation()
     {
         slotManager.skipAnim();
     }
 
-    internal void DisconnectionPopup(bool isReconnection)
+    private void DisconnectionPopup(bool isReconnection)
     {
         if (!isExit)
         {
